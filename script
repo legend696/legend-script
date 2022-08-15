@@ -39,8 +39,6 @@ function saveSettings()
     end
 end
 
-loadSettings()
-
 function ToggleAutoSkip()
     spawn(function()
         while _G.settingsTable.AutoSkip == true do
