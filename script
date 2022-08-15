@@ -1,0 +1,146 @@
+_G.settingsTable = {
+    AutoSkip = false,
+    AutoAbilityByFriends = false,
+    AutoFirstSkip = false
+}
+
+print("---Default Setting--")
+for i,v in pairs(_G.settingsTable) do
+    print(i,v)
+end
+print("------")
+
+local filename = "legend.txt";
+
+function loadSettings()
+    print("loading user settings...")
+    local HttpService = game:GetService("HttpService")
+    if (readfile and isfile and isfile(filename))then
+        _G.settingsTable = HttpService:JSONDecode(readfile(filename))
+        print('settings loaded...')
+        print("---NEW VALUES ARE---")
+        for i,v in pairs(_G.settingsTable) do
+            print(i,v)
+        end
+    end
+end
+
+loadSettings()
+
+function saveSettings()
+    print("saveing user settings...");
+    local json;
+    local HttpService = game:GetService("HttpService");
+    if (writefile) then
+        json = HttpService:JSONEncode(_G.settingsTable);
+        writefile(filename, json);
+    else
+        print("get better executor")
+    end
+end
+
+loadSettings()
+
+function ToggleAutoSkip()
+    spawn(function()
+        while _G.settingsTable.AutoSkip == true do
+            repeat wait() until game:IsLoaded()
+            local args = {
+                [1] = "AutoSkip"
+            }
+            
+            game:GetService("ReplicatedStorage").Remote.Setting:FireServer(unpack(args))
+            wait(999999)
+        end
+    end)
+end
+
+function ToggleAutoAbilityByFriends()
+    spawn(function()
+        while _G.settingsTable.AutoAbilityByFriends == true do
+            repeat wait() until game:IsLoaded()
+            local args = {
+                [1] = "FriendActive"
+            }
+            
+            game:GetService("ReplicatedStorage").Remote.Setting:FireServer(unpack(args))
+            wait(999999)
+        end
+    end)
+end
+
+function AutoFirstSkip()
+    spawn(function()
+        while _G.settingsTable.AutoFirstSkip == true do
+            repeat wait() until game:IsLoaded()
+            game:GetService("ReplicatedStorage").Remote.SkipEvent:FireServer()
+            wait(999999)
+        end
+    end)
+end
+
+
+-- init
+local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/GreenDeno/Venyx-UI-Library/main/source.lua"))()
+local venyx = library.new("legend's script", 5013109572)
+
+-- themes
+local themes = {
+Background = Color3.fromRGB(24, 24, 24),
+Glow = Color3.fromRGB(0, 0, 0),
+Accent = Color3.fromRGB(10, 10, 10),
+LightContrast = Color3.fromRGB(20, 20, 20),
+DarkContrast = Color3.fromRGB(14, 14, 14),  
+TextColor = Color3.fromRGB(255, 255, 255)
+}
+
+-- first page
+local page = venyx:addPage("Game", 5012544693)
+local section1 = page:addSection("Main")
+
+section1:addToggle("Auto Auto Skip", _G.settingsTable.AutoSkip , function(value)
+    _G.settingsTable.AutoSkip = value
+    print("Auto Skip ON", value)
+    saveSettings()
+    if value then
+        ToggleAutoSkip()
+    else
+        if nill then ToggleAutoSkip() end
+    end
+end)
+
+section1:addToggle("Auto Ability By Friends", _G.settingsTable.AutoAbilityByFriends , function(value)
+    _G.settingsTable.AutoAbilityByFriends = value
+    print("Ability By Friends ON", value)
+    saveSettings()
+    if value then
+        ToggleAutoAbilityByFriends()
+    else
+        if nill then thenToggleAutoAbilityByFriends() end
+    end
+end)
+
+section1:addToggle("Auto First Skip", _G.settingsTable.AutoFirstSkip , function(value)
+    _G.settingsTable.AutoFirstSkip = value
+    print("Auto First Skip ON", value)
+    saveSettings()
+    if value then
+        AutoFirstSkip()
+    else
+        if nill then AutoFirstSkip() end
+    end
+end)
+
+
+-- second page
+local theme = venyx:addPage("Theme", 5012544693)
+local colors = theme:addSection("Colors")
+
+for theme, color in pairs(themes) do -- all in one theme changer, i know, im cool
+colors:addColorPicker(theme, color, function(color3)
+venyx:setTheme(theme, color3)
+end)
+end
+
+-- load
+venyx:SelectPage(venyx.pages[1], true)
